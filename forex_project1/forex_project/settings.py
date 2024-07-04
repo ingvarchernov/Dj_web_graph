@@ -56,6 +56,8 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'forex_project.urls'
 
+ASGI_APPLICATION = 'forex_project.asgi.application'
+
 CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels.layers.InMemoryChannelLayer",
@@ -80,8 +82,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'forex_project.wsgi.application'
 
-# ASGI додаток (додайте це для Channels)
-ASGI_APPLICATION = 'forex_project.asgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases

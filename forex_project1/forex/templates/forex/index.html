@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Currency Pairs Chart</title>
-    <link rel="icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 </head>
 <body>
@@ -15,23 +15,38 @@
 
         const socket = new WebSocket('ws://' + window.location.host + '/ws/currency_pairs/');
 
-        let data = {
+        let chartData = {
             x: [],
-            open: [],
-            high: [],
-            low: [],
             close: [],
+            decreasing: {line: {color: 'red'}},
+            high: [],
+            increasing: {line: {color: 'green'}},
+            low: [],
+            open: [],
             type: 'candlestick'
         };
 
-        let layout = {
-            title: 'Currency Pair Prices',
-            xaxis: {
-                type: 'date'
-            }
-        };
+        const updateChart = (newData) => {
+            newData.forEach(item => {
+                chartData.x.push(item.Datetime);
+                chartData.open.push(item.Open);
+                chartData.high.push(item.High);
+                chartData.low.push(item.Low);
+                chartData.close.push(item.Close);
+            });
 
-        Plotly.newPlot('chart', [data], layout);
+            const layout = {
+                title: 'Currency Pair Prices',
+                xaxis: {
+                    title: 'Time'
+                },
+                yaxis: {
+                    title: 'Price'
+                }
+            };
+
+            Plotly.react('chart', [chartData], layout);
+        };
 
         socket.onopen = function() {
             console.log('WebSocket connection established');
@@ -42,15 +57,7 @@
             try {
                 const newData = JSON.parse(event.data);
                 console.log('Parsed data:', newData);
-
-                // Replace entire data array with new data for full update
-                data.x = newData.map(item => item.timestamp);
-                data.open = newData.map(item => item.open);
-                data.high = newData.map(item => item.high);
-                data.low = newData.map(item => item.low);
-                data.close = newData.map(item => item.close);
-
-                Plotly.react('chart', [data], layout);
+                updateChart(newData);
             } catch (error) {
                 console.error('Error parsing message data:', error);
             }

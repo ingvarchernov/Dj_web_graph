@@ -13,6 +13,9 @@ import django
 from channels.routing import ProtocolTypeRouter, URLRouter
 from channels.auth import AuthMiddlewareStack
 from django.core.asgi import get_asgi_application
+from django.urls import path
+
+#from forex_project1.forex.consumers import CurrencyPairConsumer
 
 # Додаємо батьківську директорію до системного шляху
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -23,16 +26,14 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'forex_project.settings')
 # Налаштовуємо середовище Django
 django.setup()
 
-# Імпортуємо модуль з папки forex після налаштування Django
-from forex.routing import websocket_urlpatterns
+# Імпортуємо клас консумера WebSocket
+from forex.consumers import CurrencyPairConsumer
 
 # Завантажуємо ASGI додаток
 application = ProtocolTypeRouter({
     "http": get_asgi_application(),
-    "websocket": AuthMiddlewareStack(
-        URLRouter(
-            websocket_urlpatterns
-        )
-    ),
+    "websocket": URLRouter([
+        path('ws/currency_pairs/', CurrencyPairConsumer.as_asgi()),
+    ]),
 })
 
